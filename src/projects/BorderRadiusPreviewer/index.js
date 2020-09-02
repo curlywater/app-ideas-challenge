@@ -31,10 +31,10 @@ export default function BorderRadiusPreviewer() {
     bottomLeftH: "0",
     bottomLeftV: "0",
   });
-  const [previewerSize, setPreviewerSize] = useState({
+  const previewerSize = useMemo(() => ({
     width: 360,
     height: 360,
-  });
+  }), [])
   const outputBorderRadius = useMemo(() => {
     const {
       topLeftH,
