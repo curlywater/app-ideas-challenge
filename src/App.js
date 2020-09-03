@@ -54,7 +54,6 @@ export default function App() {
               const project = projectCache[slug];
               if (project) {
                 const Component = lazy(() => project.getMain());
-                const readme = lazy(() => project.getReadme());
                 return (
                   <Suspense fallback={<div></div>}>
                     <Component />
