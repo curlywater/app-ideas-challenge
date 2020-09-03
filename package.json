@@ -6,6 +6,7 @@
     "react",
     "starter"
   ],
+  "homepage": "/app-ideas-challenge",
   "main": "src/index.js",
   "dependencies": {
     "@craco/craco": "^5.6.4",

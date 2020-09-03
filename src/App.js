@@ -30,7 +30,7 @@ context.keys().forEach(key => {
 
 export default function App() {
   return (
-      <Router>
+      <Router basename="/app-ideas-challenge">
         <Switch>
           <Route
             exact
