@@ -8,51 +8,28 @@ import {
   Redirect,
 } from "react-router-dom";
 
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false };
-  }
 
-  static getDerivedStateFromError(error) {
-    console.log(error);
-    // Update state so the next render will show the fallback UI.
-    return { hasError: true };
-  }
+const context = require.context("./projects", true, /\.\/([^/.]+)\/index\.js$/)
+const routerList = [];
+const projectCache = {};
 
-  componentDidCatch(error, errorInfo) {
-    // You can also log the error to an error reporting service
-  }
-
-  render() {
-    if (this.state.hasError) {
-      // You can render any custom fallback UI
-      return <h1>Something went wrong.</h1>;
-    }
-
-    return this.props.children;
-  }
-}
-
-const context = require.context("./projects", true, /\.\/([^/.]+)\/index\.js$/, "lazy");
-const routerPaths = context.keys().reduce((list, key) => {
-  const name = key.match(/\.\/([^/.]+)\/index\.js$/)?.[1];
-  if (name) {
-    list.push({
-      key,
+context.keys().forEach(key => {
+  const component = context(key)?.default;
+  if (component) {
+    const { name, description, ...rest } = component;
+    const slug = name.replace(/\s/, "-").replace(/([^A-Z](?=[A-Z]))([A-Z])/g, '$1-$2').toLowerCase();
+    routerList.push({
+      slug,
       name,
-      slug: name
-        .trim()
-        .replace(/(\w)([A-Z])/g, "$1-$2")
-        .toLowerCase(),
+      description
     });
+    projectCache[slug] = rest;
   }
-  return list;
-}, []);
+})
+
 
 export default function App() {
   return (
-    <ErrorBoundary>
       <Router>
         <Switch>
           <Route
@@ -61,9 +38,9 @@ export default function App() {
             render={() => {
               return (
                 <ul>
-                  {routerPaths.map(({ name, slug }) => (
+                  {routerList.map(({ name, slug, description }) => (
                     <li key={name}>
-                      <Link to={`/${slug}`}>{name}</Link>
+                      <Link to={`/${slug}`}>{name}：{description}</Link>
                     </li>
                   ))}
                 </ul>
@@ -71,15 +48,13 @@ export default function App() {
             }}
           ></Route>
           <Route
-            path="/:projectSlug"
+            path="/:slug"
             render={({ match }) => {
-              const { projectSlug } = match.params;
-
-              const router = routerPaths.find(
-                ({ slug }) => slug === projectSlug
-              );
-              if (router) {
-                const Component = lazy(() => context(router.key));
+              const { slug } = match.params;
+              const project = projectCache[slug];
+              if (project) {
+                const Component = lazy(() => project.getMain());
+                const readme = lazy(() => project.getReadme());
                 return (
                   <Suspense fallback={<div></div>}>
                     <Component />
@@ -92,6 +67,5 @@ export default function App() {
           />
         </Switch>
       </Router>
-    </ErrorBoundary>
   );
 }
