@@ -3,6 +3,9 @@ module.exports = {
     webpack: {
         alias: {
             "src": path.resolve(__dirname, "./src")
+        },
+        output: {
+            publicPath: "/app-ideas-challenge/"
         }
     }
 }
