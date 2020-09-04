@@ -1,12 +1,8 @@
-import React, { lazy, Suspense } from "react";
+import React from "react";
 import "normalize.css";
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link,
-  Redirect,
-} from "react-router-dom";
+
+import { Router } from "@reach/router";
+import { Home, Showcase } from "./components";
 
 const context = require.context("./projects", true, /\.\/([^/.]+)\/index\.js$/);
 const routerList = [];
@@ -33,42 +29,8 @@ export default function App() {
   return (
     <ErrorBoundary>
       <Router basename="/app-ideas-challenge">
-        <Switch>
-          <Route
-            exact
-            path="/"
-            render={() => {
-              return (
-                <ul>
-                  {routerList.map(({ name, slug, description }) => (
-                    <li key={name}>
-                      <Link to={`/${slug}`}>
-                        {name}：{description}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              );
-            }}
-          ></Route>
-          <Route
-            path="/:slug"
-            render={({ match }) => {
-              const { slug } = match.params;
-              const project = projectCache[slug];
-              if (project) {
-                const Component = lazy(() => project.getMain());
-                return (
-                  <Suspense fallback={<div></div>}>
-                    <Component />
-                  </Suspense>
-                );
-              } else {
-                return <Redirect to="/" />;
-              }
-            }}
-          />
-        </Switch>
+        <Home path="/" routerList={routerList} />
+        <Showcase path="/:slug" projectCache={projectCache} />
       </Router>
     </ErrorBoundary>
   );
@@ -83,11 +45,6 @@ class ErrorBoundary extends React.Component {
   static getDerivedStateFromError(error) {
     // 更新 state 使下一次渲染能够显示降级后的 UI
     return { hasError: true };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    // 你同样可以将错误日志上报给服务器
-    logErrorToMyService(error, errorInfo);
   }
 
   render() {
