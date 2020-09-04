@@ -6,7 +6,7 @@ export default function Home({ routerList }) {
     <ul>
       {routerList.map(({ name, slug, description }) => (
         <li key={name}>
-          <Link to={`/${slug}`}>
+          <Link to={`${slug}`}>
             {name}：{description}
           </Link>
         </li>

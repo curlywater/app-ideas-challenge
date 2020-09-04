@@ -28,7 +28,7 @@ context.keys().forEach((key) => {
 export default function App() {
   return (
     <ErrorBoundary>
-      <Router basename="/app-ideas-challenge">
+      <Router basepath="/app-ideas-challenge">
         <Home path="/" routerList={routerList} />
         <Showcase path="/:slug" projectCache={projectCache} />
       </Router>
